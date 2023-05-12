@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"image"
 	"io/ioutil"
+	"net/http"
 	"path"
 	"strings"
 )
@@ -12,6 +13,30 @@ var (
 	bgImgCache [][]byte //缓存背景图片
 	bkImgCache [][]byte //缓存滑块模板图片
 )
+
+func LoadBackgroudImagesURL(path []string) (err error) {
+	bgImgCache, err = loadImagesURL(path)
+	return
+}
+
+func LoadBlockImagesURL(path []string) (err error) {
+	bkImgCache, err = loadImagesURL(path)
+	return
+}
+
+func loadImagesURL(basePath []string) ([][]byte, error) {
+	var fileArrImg [][]byte
+	for _, s := range basePath {
+		res, err := http.Get(s)
+		if err != nil {
+			return nil, err
+		}
+		defer res.Body.Close()
+		data, _ := ioutil.ReadAll(res.Body)
+		fileArrImg = append(fileArrImg, data)
+	}
+	return fileArrImg, nil
+}
 
 func LoadBackgroudImages(path string) (err error) {
 	bgImgCache, err = loadImages(path)
